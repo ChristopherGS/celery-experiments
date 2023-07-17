@@ -22,8 +22,9 @@ def startup_task(id_):
     return True
 
 
-async def call_chatgpt_or_whatever():
+async def call_chatgpt_or_whatever() -> int:
     await asyncio.sleep(10)
+    return random.randint(5, 20)
 
 # Converts a Celery tasks to an async function
 def task_to_async(task):
@@ -42,9 +43,9 @@ def task_to_async(task):
 def async_parallel_task(id_):
     logger.info('-------> parallel task started %s' % id_)
     # Deliberately variable to mimic 3rd party API uncertainty
-    call_chatgpt_or_whatever()
+    result = call_chatgpt_or_whatever()
     logger.info('-------> parallel task complete %s' % id_)
-    return True
+    return result
 
 
 @celery.task()
@@ -52,13 +53,13 @@ def sync_parallel_task(id_):
     logger.info('-------> parallel task started %s' % id_)
     sleep(10)
     logger.info('-------> parallel task complete %s' % id_)
-    return True
+    return random.randint(5, 20)
 
 
 @celery.task()
-def reducer_task(id_):
+def reducer_task(id_, ints_to_average: list[int]):
     logger.info('-----> reducer task started')
     # Deliberately short - idea being that when parallel task is paused it switches to this.
     sleep(0.3)
     logger.info('-----> reducer task complete')
-    return True
+    return sum(ints_to_average)
